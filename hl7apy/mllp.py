@@ -90,8 +90,14 @@ class MLLPRequestHandler(StreamRequestHandler):
             except socket.timeout:
                 self.request.close()
                 return
+            
+        try:
+            message = self._extract_hl7_message(line.decode(self.encoding))
+            encoding_used = self.encoding
+        except Exception as e:
+            message = self._extract_hl7_message(line.decode('latin1'))'
+            encoding_used = 'latin1'
 
-        message = self._extract_hl7_message(line.decode(self.encoding))
         if message is not None:
             try:
                 response = self._route_message(message)
@@ -99,7 +105,7 @@ class MLLPRequestHandler(StreamRequestHandler):
                 self.request.close()
             else:
                 # encode the response
-                self.wfile.write(response.encode(self.encoding))
+                self.wfile.write(response.encode(encoding_used))
         self.request.close()
 
     def _extract_hl7_message(self, msg):
