@@ -95,7 +95,7 @@ class MLLPRequestHandler(StreamRequestHandler):
             message = self._extract_hl7_message(line.decode(self.encoding))
             encoding_used = self.encoding
         except Exception as e:
-            message = self._extract_hl7_message(line.decode('latin1'))'
+            message = self._extract_hl7_message(line.decode('latin1'))
             encoding_used = 'latin1'
 
         if message is not None:
