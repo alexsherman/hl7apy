@@ -74,10 +74,12 @@ class MLLPRequestHandler(StreamRequestHandler):
         try:
             line = self.request.recv(3)
         except socket.timeout:
+            print('Socket timeout; closing request')
             self.request.close()
             return
 
         if line[:1] != self.sb:  # First MLLP char
+            print('First line was not MLLP char b\x0b, closing')
             self.request.close()
             return
 
@@ -88,24 +90,32 @@ class MLLPRequestHandler(StreamRequestHandler):
                     break
                 line += char
             except socket.timeout:
+                print('Socket timeout while reading lines')
                 self.request.close()
                 return
             
         try:
+            print('Trying to decode message')
             message = self._extract_hl7_message(line.decode(self.encoding))
             encoding_used = self.encoding
         except Exception as e:
+            print(e)
             message = self._extract_hl7_message(line.decode('latin1'))
             encoding_used = 'latin1'
 
         if message is not None:
             try:
                 response = self._route_message(message)
-            except Exception:
+            except Exception as e:
+                print("Exception while routing message")
+                print(e)
                 self.request.close()
             else:
                 # encode the response
                 self.wfile.write(response.encode(encoding_used))
+         else: 
+            print("return message is None!! closing..")
+             
         self.request.close()
 
     def _extract_hl7_message(self, msg):
