@@ -113,7 +113,7 @@ class MLLPRequestHandler(StreamRequestHandler):
             else:
                 # encode the response
                 self.wfile.write(response.encode(encoding_used))
-         else: 
+        else: 
             print("return message is None!! closing..")
              
         self.request.close()
